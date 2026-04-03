@@ -1,8 +1,22 @@
 import { isNull } from "drizzle-orm";
 import { db } from "../db/db";
-import { room } from "../db/schema";
+import { room, type insertRoom } from "../db/schema";
+import z from "zod";
 
-export function createRoom() {}
+const NewRoom = z.object({
+  name: z.string().max(100),
+  password: z.string().max(32).optional(),
+  owner: z.uuid()
+});
+
+export type newRoom = z.infer<typeof NewRoom>;
+
+export function createRoom(newRoom: newRoom) {
+    const id = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const roomToAdd: insertRoom = { id, ...newRoom };
+    db.insert(room).values(roomToAdd);
+    return roomToAdd;
+}
 
 export function updateRoom() {}
 

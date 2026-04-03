@@ -1,27 +1,22 @@
-const model = {
-    createRoom() {
+import { isNull } from "drizzle-orm";
+import { db } from "../db/db";
+import { room } from "../db/schema";
 
-    },
+export function createRoom() {}
 
-    updateRoom() {
-        
-    },
+export function updateRoom() {}
 
-    deleteRoom() {
+export function deleteRoom() {}
 
-    },
-
-    getRooms() {
-
-    },
-
-    receiveMessage() {
-
-    },
-
-    sendMessage() {
-        
-    }
+export async function getRooms() {
+    const rooms = await db.select().from(room).where(isNull(room.password));
+    return rooms;
 }
 
-export default model;
+export function receiveMessage() {}
+
+export function sendMessage() {}
+
+export function signUpUser() {}
+
+export function signInUser() {}

@@ -1,3 +1,5 @@
+import { createRoom, updateRoom, deleteRoom, getRooms } from "./src/model";
+
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
   routes: {

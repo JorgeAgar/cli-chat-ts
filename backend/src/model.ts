@@ -1,7 +1,8 @@
 import { eq, isNull } from "drizzle-orm";
 import { db } from "../db/db";
-import { room, type insertRoom } from "../db/schema";
+import { room, user, type insertRoom, type insertUser } from "../db/schema";
 import z from "zod";
+import { password, randomUUIDv7 } from "bun";
 
 const NewRoom = z.object({
   name: z.string().max(100),
@@ -38,6 +39,12 @@ export function receiveMessage() {}
 
 export function sendMessage() {}
 
-export function signUpUser() {}
+export async function signUpUser(newUser: {name: string, email: string, password: string}) {
+    const id = randomUUIDv7();
+    const hashedPassword = await password.hash(newUser.password);
+    const userToAdd: insertUser = { id, name: newUser.name, email: newUser.email, password: hashedPassword };
+    db.insert(user).values(userToAdd);
+    //TODO: generate JWT and return it
+}
 
 export function signInUser() {}

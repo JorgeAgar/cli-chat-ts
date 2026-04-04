@@ -1,4 +1,6 @@
+import z from "zod";
 import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser, signInUser, checkSignedIn } from "./src/model";
+import { name } from "drizzle-orm";
 
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
@@ -7,13 +9,22 @@ const server = Bun.serve({
     "/status": new Response("OK"),
 
     "/signup": async req => {
-        const body = await req.body?.json();
+        const userSchema = z.object({
+        email: z.email(),
+        name: z.string().max(24),
+        password: z.string().max(32)
+        });
+        const body = userSchema.parse(await req.json());
         const user = await signUpUser(body);
         return Response.json({ token: user });
     },
 
     "/signin": async req => {
-        const body = await req.body?.json();
+        const userSchema = z.object({
+        email: z.email(),
+        password: z.string().max(32)
+        });
+        const body = userSchema.parse(await req.json());
         const user = await signInUser(body);
         return Response.json({ token: user });
     },

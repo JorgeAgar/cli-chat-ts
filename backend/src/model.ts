@@ -3,6 +3,7 @@ import { db } from "../db/db";
 import { room, user, type insertRoom, type insertUser } from "../db/schema";
 import z from "zod";
 import { password, randomUUIDv7 } from "bun";
+import { SignJWT } from "jose";
 
 const NewRoom = z.object({
   name: z.string().max(100),
@@ -48,3 +49,14 @@ export async function signUpUser(newUser: {name: string, email: string, password
 }
 
 export function signInUser() {}
+
+async function generateJWT(userId: string, userName: string) {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const alg = "HS256";
+    const jwt = await new SignJWT({ userId, userName })
+        .setProtectedHeader({ alg })
+        .setIssuedAt()
+        .setExpirationTime("30min")
+        .sign(secret);
+    return jwt;
+}

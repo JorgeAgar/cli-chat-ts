@@ -1,4 +1,4 @@
-import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser } from "./src/model";
+import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser, signInUser } from "./src/model";
 
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
@@ -9,6 +9,12 @@ const server = Bun.serve({
     "/signup": async req => {
         const body = await req.body?.json();
         const user = await signUpUser(body);
+        return Response.json({ token: user });
+    },
+
+    "/signin": async req => {
+        const body = await req.body?.json();
+        const user = await signInUser(body);
         return Response.json({ token: user });
     },
 

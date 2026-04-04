@@ -48,7 +48,15 @@ export async function signUpUser(newUser: {name: string, email: string, password
     return await generateJWT(id, newUser.name);
 }
 
-export function signInUser() {}
+export async function signInUser(credentials: {email: string, password: string}) {
+    const userData = await db.select().from(user).where(eq(user.email, credentials.email));
+    if (!userData || userData.length === 0) {
+        return new Response("Invalid credentials", { status: 401 });
+    }
+    if (await password.verify(credentials.password, userData[0]!.password)) {
+        return await generateJWT(userData[0]!.id, userData[0]!.name);
+    }
+}
 
 async function generateJWT(userId: string, userName: string) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);

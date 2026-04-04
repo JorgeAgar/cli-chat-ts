@@ -44,8 +44,8 @@ export async function signUpUser(newUser: {name: string, email: string, password
     const id = randomUUIDv7();
     const hashedPassword = await password.hash(newUser.password);
     const userToAdd: insertUser = { id, name: newUser.name, email: newUser.email, password: hashedPassword };
-    db.insert(user).values(userToAdd);
-    //TODO: generate JWT and return it
+    await db.insert(user).values(userToAdd);
+    return await generateJWT(id, newUser.name);
 }
 
 export function signInUser() {}

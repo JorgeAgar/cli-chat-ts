@@ -1,4 +1,4 @@
-import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser, signInUser } from "./src/model";
+import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser, signInUser, checkSignedIn } from "./src/model";
 
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
@@ -16,6 +16,19 @@ const server = Bun.serve({
         const body = await req.body?.json();
         const user = await signInUser(body);
         return Response.json({ token: user });
+    },
+
+    "/amisignedin": async req => {
+        const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+        if (!token) {
+            return new Response("Unauthorized", { status: 401 });
+        }
+        try {
+            await checkSignedIn(token);
+            return new Response("Authorized", { status: 200 });
+        } catch (error) {
+            return new Response("Unauthorized", { status: 401 });
+        }
     },
 
     "/rooms": {

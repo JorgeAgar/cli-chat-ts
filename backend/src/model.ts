@@ -3,7 +3,7 @@ import { db } from "../db/db";
 import { room, user, type insertRoom, type insertUser } from "../db/schema";
 import z from "zod";
 import { password, randomUUIDv7 } from "bun";
-import { SignJWT } from "jose";
+import { jwtVerify, SignJWT } from "jose";
 
 const NewRoom = z.object({
   name: z.string().max(100),
@@ -58,6 +58,15 @@ export async function signInUser(credentials: {email: string, password: string})
     }
 }
 
+export async function checkSignedIn(token: string) {
+    try {
+        await verifyJWT(token);
+        return new Response("Authorized", { status: 200 });
+    } catch (error) {
+        throw new Error("Something happened");
+    }
+}
+
 async function generateJWT(userId: string, userName: string) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const alg = "HS256";
@@ -67,4 +76,10 @@ async function generateJWT(userId: string, userName: string) {
         .setExpirationTime("30min")
         .sign(secret);
     return jwt;
+}
+
+async function verifyJWT(token: string) {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload, protectedHeader} = await jwtVerify(token, secret);
+    console.log(payload, protectedHeader);
 }

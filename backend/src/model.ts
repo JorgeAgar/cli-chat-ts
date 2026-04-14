@@ -1,6 +1,6 @@
 import { eq, isNull } from "drizzle-orm";
 import { db } from "../db/db";
-import { room, user, type insertRoom, type insertUser } from "../db/schema";
+import { room, user, type insertRoom, type insertUser, type updateRoom } from "../db/schema";
 import z from "zod";
 import { password, randomUUIDv7 } from "bun";
 import { jwtVerify, SignJWT } from "jose";
@@ -25,7 +25,20 @@ export function createRoom(newRoom: newRoom) {
     return roomToAdd;
 }
 
-export function updateRoom() {}
+export function updateRoom(updatedRoom: updateRoom) {
+    try {
+        NewRoom.parse(updatedRoom);
+    } catch (error) {
+        throw new Error("Invalid room data");
+    }
+    if(!updatedRoom.id) {
+        throw new Error("Room ID is required for update");
+    }
+    db.update(room).set(updatedRoom).where(eq(room.id!, updatedRoom.id)).catch(err => {
+        console.error(err);
+        throw new Error("Error updating room");
+    });
+}
 
 export function deleteRoom(roomId: string) {
     db.delete(room).where(eq(room.id, roomId)).then(() => {

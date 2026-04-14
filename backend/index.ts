@@ -1,6 +1,7 @@
 import z from "zod";
 import { createRoom, updateRoom, deleteRoom, getRooms, signUpUser, signInUser, checkSignedIn } from "./src/model";
-import { name } from "drizzle-orm";
+import type { newRoom } from "./src/model";
+import { NewRoom } from "./src/model";
 
 const server = Bun.serve({
   // `routes` requires Bun v1.2.3+
@@ -45,9 +46,13 @@ const server = Bun.serve({
     "/rooms": {
         GET: () => Response.json(getRooms()),
         POST: async req => {
-            const body = await req.json();
-            const newRoom = createRoom(body);
-            return Response.json(newRoom, { status: 201 });
+            try {
+                const body = NewRoom.parse(await req.json());
+                const newRoom = createRoom(body);
+                return Response.json(newRoom, { status: 201 });
+            } catch (error) {
+                return Response.json({ error: "Invalid room data" }, { status: 400 });
+            }
         },
         PATCH: async req => {
             const body = await req.json();

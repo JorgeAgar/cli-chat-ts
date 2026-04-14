@@ -5,7 +5,7 @@ import z from "zod";
 import { password, randomUUIDv7 } from "bun";
 import { jwtVerify, SignJWT } from "jose";
 
-const NewRoom = z.object({
+export const NewRoom = z.object({
   name: z.string().max(100),
   password: z.string().max(32).optional(),
   owner: z.uuid()
@@ -14,6 +14,11 @@ const NewRoom = z.object({
 export type newRoom = z.infer<typeof NewRoom>;
 
 export function createRoom(newRoom: newRoom) {
+    try {
+        NewRoom.parse(newRoom);
+    } catch (error) {
+        throw new Error("Invalid room data");
+    }
     const id = Math.random().toString(36).substring(2, 8).toUpperCase();
     const roomToAdd: insertRoom = { id, ...newRoom };
     db.insert(room).values(roomToAdd);

@@ -55,9 +55,13 @@ const server = Bun.serve({
             }
         },
         PATCH: async req => {
-            const body = await req.json();
-            const updatedRoom = updateRoom(body);
-            return Response.json(updatedRoom);
+            try {
+                const body = NewRoom.parse(await req.json());
+                const updatedRoom = createRoom(body);
+                return Response.json(updatedRoom, { status: 201 });
+            } catch (error) {
+                return Response.json({ error: "Invalid room data" }, { status: 400 });
+            }
         },
         DELETE: async req => {
             const body = await req.json();

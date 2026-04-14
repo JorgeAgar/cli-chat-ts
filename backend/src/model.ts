@@ -21,7 +21,10 @@ export function createRoom(newRoom: newRoom) {
     }
     const id = Math.random().toString(36).substring(2, 8).toUpperCase();
     const roomToAdd: insertRoom = { id, ...newRoom };
-    db.insert(room).values(roomToAdd);
+    db.insert(room).values(roomToAdd).catch(err => {
+        console.error(err);
+        throw new Error("Error creating room");
+    });
     return roomToAdd;
 }
 
